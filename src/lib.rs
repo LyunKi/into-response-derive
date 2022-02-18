@@ -9,8 +9,9 @@ pub fn hello_macro_derive(input: TokenStream) -> TokenStream {
 
 fn impl_into_response_macro(ast: &syn::DeriveInput) -> TokenStream {
     let name = &ast.ident;
+    let (impl_generics, ty_generics, where_clause) = &ast.generics.split_for_impl();
     let gen = quote! {
-        impl axum::response::IntoResponse for #name {
+        impl #impl_generics axum::response::IntoResponse for #name #ty_generics #where_clause{
             fn into_response(self) -> axum::response::Response {
                 let bytes = match serde_json::to_vec(&self) {
                     Ok(res) => res,
@@ -36,13 +37,4 @@ fn impl_into_response_macro(ast: &syn::DeriveInput) -> TokenStream {
         }
     };
     gen.into()
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
 }
