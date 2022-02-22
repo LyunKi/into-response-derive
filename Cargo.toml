@@ -1,5 +1,5 @@
 [package]
-name = "into-response-derive"
+name = "into_response_derive"
 version = "0.1.0"
 edition = "2021"
 
