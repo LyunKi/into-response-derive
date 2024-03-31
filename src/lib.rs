@@ -13,26 +13,25 @@ fn impl_into_response_macro(ast: &syn::DeriveInput) -> TokenStream {
     let gen = quote! {
         impl #impl_generics axum::response::IntoResponse for #name #ty_generics #where_clause{
             fn into_response(self) -> axum::response::Response {
-                let bytes = match serde_json::to_vec(&self) {
-                    Ok(res) => res,
-                    Err(err) => {
-                        return axum::response::Response::builder()
-                            .status(hyper::StatusCode::INTERNAL_SERVER_ERROR)
-                            .header(
-                                hyper::header::CONTENT_TYPE,
-                                axum::http::HeaderValue::from_static(mime::TEXT_PLAIN_UTF_8.as_ref()),
-                            )
-                            .body(axum::body::boxed(axum::body::Full::from(err.to_string())))
-                            .unwrap();
-                    }
-                };
-                let mut res =
-                    axum::response::Response::new(axum::body::boxed(axum::body::Full::from(bytes)));
-                res.headers_mut().insert(
-                    hyper::header::CONTENT_TYPE,
-                    axum::http::HeaderValue::from_static(mime::APPLICATION_JSON.as_ref()),
-                );
-                res
+                match serde_json::to_vec(&self) {
+                    Ok(res) => (
+                        [(
+                            axum::http::header::CONTENT_TYPE,
+                            axum::http::HeaderValue::from_static(mime::APPLICATION_JSON.as_ref()),
+                        )],
+                        res,
+                    )
+                        .into_response(),
+                    Err(err) => (
+                        axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                        [(
+                            axum::http::header::CONTENT_TYPE,
+                            axum::http::HeaderValue::from_static(mime::TEXT_PLAIN_UTF_8.as_ref()),
+                        )],
+                        err.to_string(),
+                    )
+                        .into_response(),
+                }
             }
         }
     };

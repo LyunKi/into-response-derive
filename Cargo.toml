@@ -1,6 +1,6 @@
 [package]
 name = "into_response_derive"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "a simple into response derive for axum"
 readme = "./README.md"
@@ -14,7 +14,5 @@ categories = ["web-programming"]
 proc-macro = true
 
 [dependencies]
-axum = "0.4.5"
-hyper = "0.14.17"
 quote = "1.0.15"
 syn = "1.0.86"
